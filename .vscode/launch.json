@@ -1,0 +1,48 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "HC32F4A0xI Debug",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/hc32f4a0xi-template.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "jlink",
+            "device": "HC32F4A0xI",
+            "interface": "swd",
+            "preLaunchTask": "build",
+            "svdFile": "${workspaceFolder}/config/HC32F4A0.svd",
+            "showDevDebugOutput": "parsed",
+            "armToolchainPath": "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/14.3 rel1/bin",
+            "gdbPath": "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/14.3 rel1/bin/arm-none-eabi-gdb.exe",
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 240000000,
+                "swoFrequency": 4000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            }
+        },
+        {
+            "name": "HC32F4A0xI Attach",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/hc32f4a0xi-template.elf",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "jlink",
+            "device": "HC32F4A0xI",
+            "interface": "swd",
+            "svdFile": "${workspaceFolder}/config/HC32F4A0.svd",
+            "showDevDebugOutput": "parsed",
+            "armToolchainPath": "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/14.3 rel1/bin",
+            "gdbPath": "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/14.3 rel1/bin/arm-none-eabi-gdb.exe"
+        }
+    ]
+}

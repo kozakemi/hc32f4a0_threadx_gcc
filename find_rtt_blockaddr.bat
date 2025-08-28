@@ -1,0 +1,1 @@
+findstr "_SEGGER_RTT" build\hc32f4a0xi-template.map 

@@ -1,0 +1,30 @@
+{
+    "configurations": [
+        {
+            "name": "HC32F4A0",
+            "includePath": [
+                "${workspaceFolder}/drivers/mcu/inc",
+                "${workspaceFolder}/drivers/hc32_ll_driver/inc",
+                "${workspaceFolder}/drivers/cmsis/Include",
+                "${workspaceFolder}/drivers/cmsis/Device/HDSC/hc32f4xx/Include",
+                "${workspaceFolder}/drivers/bsp/ev_hc32f4a0_lqfp176",
+                "${workspaceFolder}/middlewares/threadx-6.4.2_rel/common/inc",
+                "${workspaceFolder}/middlewares/threadx-6.4.2_rel/ports/cortex_m4/gnu/inc",
+                "${workspaceFolder}/inc",
+                "${workspaceFolder}/src"
+            ],
+            "defines": [
+                "HC32F4A0",
+                "USE_DDL_DRIVER",
+                "__DEBUG",
+                "TX_INCLUDE_USER_DEFINE_FILE"
+            ],
+            "compilerPath": "C:\\Program Files (x86)\\Arm GNU Toolchain arm-none-eabi\\14.3 rel1\\bin\\arm-none-eabi-gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-arm",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+        }
+    ],
+    "version": 4
+}
