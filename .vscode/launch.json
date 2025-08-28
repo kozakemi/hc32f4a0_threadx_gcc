@@ -12,7 +12,7 @@
             "device": "HC32F4A0xI",
             "interface": "swd",
             "preLaunchTask": "build",
-            "svdFile": "${workspaceFolder}/config/HC32F4A0.svd",
+            "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
             "showDevDebugOutput": "parsed",
             "armToolchainPath": "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/14.3 rel1/bin",
             "gdbPath": "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/14.3 rel1/bin/arm-none-eabi-gdb.exe",
@@ -39,7 +39,7 @@
             "servertype": "jlink",
             "device": "HC32F4A0xI",
             "interface": "swd",
-            "svdFile": "${workspaceFolder}/config/HC32F4A0.svd",
+            "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
             "showDevDebugOutput": "parsed",
             "armToolchainPath": "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/14.3 rel1/bin",
             "gdbPath": "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/14.3 rel1/bin/arm-none-eabi-gdb.exe"

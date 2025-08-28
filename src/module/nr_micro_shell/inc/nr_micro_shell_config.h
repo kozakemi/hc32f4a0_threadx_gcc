@@ -33,16 +33,19 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __nr_micro_shell_config_h
 #define __nr_micro_shell_config_h
-
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+
+    /* Includes ------------------------------------------------------------------*/
 #ifndef NR_MICRO_SHELL_SIMULATOR
-#include <rtconfig.h>
-#include <rtthread.h>
+//#include <rtconfig.h>
+//#include <rtthread.h>
+#include "SEGGER_RTT.h"
 #endif
+
 
 #ifdef PKG_USING_NR_MICRO_SHELL
 
@@ -120,14 +123,14 @@ The end of line.
 #define NR_SHELL_CMD_HISTORY_BUF_LENGTH 253
 
 /* The user's name. */
-#define NR_SHELL_USER_NAME "nr@root:"
+#define NR_SHELL_USER_NAME "4A0@root:"
 
 /*
 0: \n
 1: \r
 2: \r\n
 */
-#define NR_SHELL_END_OF_LINE 0
+#define NR_SHELL_END_OF_LINE 1
 
 /* Weather the terminal support all ANSI codes. */
 #define NR_SHLL_FULL_ANSI 1
@@ -139,7 +142,7 @@ The end of line.
 // #define NR_SHELL_USING_EXPORT_CMD
 
 /* If you use RTOS, you may need to do some special processing for printf(). */
-#define shell_printf(fmt, args...) printf(fmt, ##args);
+#define shell_printf(...) do { SEGGER_RTT_SetTerminal(0); SEGGER_RTT_printf(0, __VA_ARGS__); } while(0)
 #define ansi_show_char(x) putchar(x)
 
 #endif
@@ -149,4 +152,4 @@ The end of line.
 #endif
 
 #endif
-/******************* (C) COPYRIGHT 2019 Ji Youzhou *****END OF FILE*****************/
+    /******************* (C) COPYRIGHT 2019 Ji Youzhou *****END OF FILE*****************/

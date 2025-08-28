@@ -98,13 +98,13 @@ char ansi_get_char(char x, ansi_st *ansi)
 			}
 		} else if (x == '\033') {
 			ansi->combine_state = ANSI_WAIT_CTRL_CHAR_END;
-			ansi->combine_buf[ansi->cmd_num] = x;
+			ansi->combine_buf[(size_t)ansi->cmd_num] = (unsigned char)x;
 			ansi->cmd_num++;
 		} else {
 			nr_ansi_common_char_slover(ansi, x);
 		}
 	} else if (ansi->combine_state == ANSI_WAIT_CTRL_CHAR_END) {
-		ansi->combine_buf[ansi->cmd_num] = x;
+		ansi->combine_buf[(size_t)ansi->cmd_num] = (unsigned char)x;
 
 		if (('a' <= x && 'z' >= x) || ('A' <= x && 'Z' >= x) || x == '~') {
 			cmd_id = ansi_search_char(x, nr_ansi_in_cmd);

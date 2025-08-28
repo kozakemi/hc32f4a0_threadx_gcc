@@ -23,10 +23,9 @@
  ******************************************************************************/
 #include "hc32_ll.h"
 #include "ev_hc32f4a0_lqfp176_bsp.h"
-#include "ev_hc32f4a0_lqfp176.h"
 #include "tx_api.h"
-#include "SEGGER_RTT.h"
-
+#include "rtt.h"
+#include "shell.h"
 /**
  * @addtogroup HC32F4A0_DDL_Examples
  * @{
@@ -55,6 +54,8 @@
 /* ThreadX definitions */
 #define THREAD_STACK_SIZE   1024
 #define THREAD_PRIORITY     3
+#define SHELL_THREAD_STACK_SIZE   512
+#define SHELL_THREAD_PRIORITY     4
 
 /*******************************************************************************
  * Global variable definitions (declared in header file with 'extern')
@@ -62,6 +63,8 @@
 /* ThreadX objects */
 TX_THREAD thread_led;
 UCHAR thread_led_stack[THREAD_STACK_SIZE];
+TX_THREAD thread_shell;
+UCHAR thread_shell_stack[SHELL_THREAD_STACK_SIZE];
 
 /*******************************************************************************
  * Local function prototypes ('static')
@@ -86,8 +89,22 @@ static void thread_led_entry(ULONG thread_input)
     
     for (;;) {
         LED_G_TOGGLE();
-        SEGGER_RTT_printf(0, "LED toggled\n");
         tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND * 2); /* Sleep for 2 seconds */
+    }
+}
+
+/**
+ * @brief  Shell Thread Entry Function
+ * @param  thread_input: Thread input parameter
+ * @retval None
+ */
+static void thread_shell_entry(ULONG thread_input)
+{
+    (void)thread_input;
+    
+    for (;;) {
+        nr_micro_shell_loop();
+        tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND / 10); /* Sleep for 100ms */
     }
 }
 /**
@@ -118,9 +135,9 @@ int main(void)
     LL_PERIPH_WE(LL_PERIPH_ALL);
     /* Initialize BSP system clock. */
     BSP_CLK_Init();
-    /* Initialize SEGGER RTT */
-    SEGGER_RTT_Init();
-    SEGGER_RTT_printf(0, "SEGGER RTT initialized successfully!\n");
+    /* Initialize SEGGER RTT && shell */
+    rtt_init();
+    nr_micro_shell_init();
     /* LED initialize */
     LED_Init();
     /* Register write protected for some required peripherals. */
@@ -153,6 +170,18 @@ void tx_application_define(void *first_unused_memory)
                      THREAD_STACK_SIZE,
                      THREAD_PRIORITY,
                      THREAD_PRIORITY,
+                     TX_NO_TIME_SLICE,
+                     TX_AUTO_START);
+    
+    /* Create Shell thread */
+    tx_thread_create(&thread_shell,
+                     "Shell Thread",
+                     thread_shell_entry,
+                     0,
+                     thread_shell_stack,
+                     SHELL_THREAD_STACK_SIZE,
+                     SHELL_THREAD_PRIORITY,
+                     SHELL_THREAD_PRIORITY,
                      TX_NO_TIME_SLICE,
                      TX_AUTO_START);
 }

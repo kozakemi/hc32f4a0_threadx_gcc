@@ -10,7 +10,6 @@
                 "${workspaceFolder}/drivers/bsp/ev_hc32f4a0_lqfp176",
                 "${workspaceFolder}/middlewares/threadx-6.4.2_rel/common/inc",
                 "${workspaceFolder}/middlewares/threadx-6.4.2_rel/ports/cortex_m4/gnu/inc",
-                "${workspaceFolder}/inc",
                 "${workspaceFolder}/src"
             ],
             "defines": [

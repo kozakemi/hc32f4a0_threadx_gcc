@@ -1,5 +1,15 @@
 {
     "files.associations": {
-        "ev_hc32f4a0_lqfp176.h": "c"
+        "ev_hc32f4a0_lqfp176.h": "c",
+        "tx_api.h": "c",
+        "shell.h": "c",
+        "compare": "c",
+        "*.tcc": "c",
+        "cmath": "c",
+        "type_traits": "c",
+        "bit": "c",
+        "cstdlib": "c",
+        "new": "c",
+        "typeinfo": "c"
     }
 }

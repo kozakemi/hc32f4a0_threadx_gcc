@@ -132,18 +132,18 @@ void shell_parser(shell_st *shell, char *str)
 	fp = shell_search_cmd(shell, str);
 
 	if (fp == NULL) {
-		if (isalpha(str[0])) {
+		if (isalpha((unsigned char)str[0])) {
 			shell_printf("no command named: %s" NR_SHELL_NEXT_LINE, token);
 		}
 	} else {
-		argv[argc] = index;
+	argv[(int)argc] = index;
 		strcpy(argv + index, str);
 		index += strlen(str) + 1;
 		argc++;
 
 		token = nr_shell_strtok(NULL, " ");
 		while (token != NULL) {
-			argv[argc] = index;
+			argv[(int)argc] = index;
 			strcpy(argv + index, token);
 			index += strlen(token) + 1;
 			argc++;
