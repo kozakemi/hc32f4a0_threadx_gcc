@@ -26,6 +26,8 @@
 #include "tx_api.h"
 #if ENABLE_TRACE_API
 #include "SEGGER_SYSVIEW.h"
+#include "rtt.h"
+#include "shell.h"
 #else
 #include "rtt.h"
 #include "shell.h"
@@ -61,8 +63,7 @@
 #define THREAD_PRIORITY     3
 #define SHELL_THREAD_STACK_SIZE   512
 #define SHELL_THREAD_PRIORITY     4
-#define IDLE_THREAD_STACK_SIZE    256
-#define IDLE_THREAD_PRIORITY      31
+
 
 /*******************************************************************************
  * Global variable definitions (declared in header file with 'extern')
@@ -70,12 +71,9 @@
 /* ThreadX objects */
 TX_THREAD thread_led;
 UCHAR thread_led_stack[THREAD_STACK_SIZE];
-#if (ENABLE_TRACE_API == 0)
 TX_THREAD thread_shell;
 UCHAR thread_shell_stack[SHELL_THREAD_STACK_SIZE];
-#endif
-TX_THREAD thread_idle;
-UCHAR thread_idle_stack[IDLE_THREAD_STACK_SIZE];
+
 
 /*******************************************************************************
  * Local function prototypes ('static')
@@ -109,7 +107,6 @@ static void thread_led_entry(ULONG thread_input)
  * @param  thread_input: Thread input parameter
  * @retval None
  */
-#if (ENABLE_TRACE_API == 0)
 static void thread_shell_entry(ULONG thread_input)
 {
     (void)thread_input;
@@ -119,24 +116,8 @@ static void thread_shell_entry(ULONG thread_input)
         tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND / 10); /* Sleep for 100ms */
     }
 }
-#endif
 
-/**
- * @brief  Idle Thread Entry Function
- * @param  thread_input: Thread input parameter
- * @retval None
- */
-static void thread_idle_entry(ULONG thread_input)
-{
-    (void)thread_input;
-    
-    TX_INTERRUPT_SAVE_AREA
 
-    while (1) {
-        TX_DISABLE
-        TX_RESTORE
-    }
-}
 
 /**
  * @brief  LED Init
@@ -167,10 +148,8 @@ int main(void)
     /* Initialize BSP system clock. */
     BSP_CLK_Init();
     /* Initialize SEGGER RTT && shell */
-    #if (ENABLE_TRACE_API == 0)
     rtt_init();
     nr_micro_shell_init();
-    #endif
     /* LED initialize */
     LED_Init();
     /* Register write protected for some required peripherals. */
@@ -206,7 +185,6 @@ void tx_application_define(void *first_unused_memory)
                      THREAD_PRIORITY,
                      TX_NO_TIME_SLICE,
                      TX_AUTO_START);
-    #if (ENABLE_TRACE_API == 0)
     /* Create Shell thread */
     tx_thread_create(&thread_shell,
                      "Shell Thread",
@@ -218,19 +196,8 @@ void tx_application_define(void *first_unused_memory)
                      SHELL_THREAD_PRIORITY,
                      TX_NO_TIME_SLICE,
                      TX_AUTO_START);
-    #endif
     
-    /* Create Idle thread */
-    tx_thread_create(&thread_idle,
-                     "Idle Thread",
-                     thread_idle_entry,
-                     0,
-                     thread_idle_stack,
-                     IDLE_THREAD_STACK_SIZE,
-                     IDLE_THREAD_PRIORITY,
-                     IDLE_THREAD_PRIORITY,
-                     TX_NO_TIME_SLICE,
-                     TX_AUTO_START);
+
 }
 
 /**

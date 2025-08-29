@@ -209,6 +209,7 @@ SECTIONS
         *(.stack*)
         . = ALIGN(8);
         __StackTop = .;
+        __RAM_segment_used_end__ = .;
     } >RAM
 
     /DISCARD/ :
