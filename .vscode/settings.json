@@ -10,6 +10,8 @@
         "bit": "c",
         "cstdlib": "c",
         "new": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "segger_sysview.h": "c",
+        "segger_sysview_threadx.h": "c"
     }
 }

@@ -54,8 +54,12 @@ configure_file(${TX_USER_FILE} ${CUSTOM_INC_DIR}/tx_user.h COPYONLY)
 target_include_directories(${PROJECT_NAME} 
     PUBLIC 
     ${CUSTOM_INC_DIR}
+    # SystemView header directories
+    ${CMAKE_CURRENT_LIST_DIR}/../../tools/SystemView_Src_V360e/SEGGER
+    ${CMAKE_CURRENT_LIST_DIR}/../../tools/SystemView_Src_V360e/Config
+    ${CMAKE_CURRENT_LIST_DIR}/../../tools/SystemView_Src_V360e/Sample/ThreadX
 )
-target_compile_definitions(${PROJECT_NAME} PUBLIC "TX_INCLUDE_USER_DEFINE_FILE" )
+target_compile_definitions(${PROJECT_NAME} PUBLIC "TX_INCLUDE_USER_DEFINE_FILE" "ENABLE_TRACE_API=1" )
 
 # Enable a build target that produces a ZIP file of all sources
 set(CPACK_SOURCE_GENERATOR "ZIP")

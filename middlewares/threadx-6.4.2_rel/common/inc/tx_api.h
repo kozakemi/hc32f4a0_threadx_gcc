@@ -2390,5 +2390,9 @@ void __ghs_rnerr(char *errMsg, int stackLevels, int stackTraceDisplay, void *hex
         }
 #endif
 
+#if ENABLE_TRACE_API
+#include "SEGGER_SYSVIEW_ThreadX.h"
+#endif
+
 #endif
 

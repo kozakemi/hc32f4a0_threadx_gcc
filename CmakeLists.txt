@@ -62,22 +62,32 @@ file(GLOB SOURCES
     # Add user source files
     "${CMAKE_CURRENT_LIST_DIR}/src/*.c"
     "${CMAKE_CURRENT_LIST_DIR}/src/*.S"
-    "${CMAKE_CURRENT_LIST_DIR}/tools/SEGGER_RTT_V798d/RTT/SEGGER_RTT.c"
-    "${CMAKE_CURRENT_LIST_DIR}/tools/SEGGER_RTT_V798d/RTT/SEGGER_RTT_printf.c"
-    "${CMAKE_CURRENT_LIST_DIR}/tools/SEGGER_RTT_V798d/RTT/SEGGER_RTT_ASM_ARMv7M.S"
-    "${CMAKE_CURRENT_LIST_DIR}/tools/nr_micro_shell-1.0.2/src/*.c"
-    "${CMAKE_CURRENT_LIST_DIR}/src/module/nr_micro_shell/src/*.c"
-    "${CMAKE_CURRENT_LIST_DIR}/src/module/segger_rtt/src/*.c"
+    # "${CMAKE_CURRENT_LIST_DIR}/tools/SEGGER_RTT_V798d/RTT/SEGGER_RTT.c"
+    # "${CMAKE_CURRENT_LIST_DIR}/tools/SEGGER_RTT_V798d/RTT/SEGGER_RTT_printf.c"
+    # "${CMAKE_CURRENT_LIST_DIR}/tools/SEGGER_RTT_V798d/RTT/SEGGER_RTT_ASM_ARMv7M.S"
+    # "${CMAKE_CURRENT_LIST_DIR}/tools/nr_micro_shell-1.0.2/src/*.c"
+    # "${CMAKE_CURRENT_LIST_DIR}/src/module/nr_micro_shell/src/*.c"
+    # "${CMAKE_CURRENT_LIST_DIR}/src/module/segger_rtt/src/*.c"
+    # SystemView source files
+    "${CMAKE_CURRENT_LIST_DIR}/tools/SystemView_Src_V360e/SEGGER/*.c"
+    "${CMAKE_CURRENT_LIST_DIR}/tools/SystemView_Src_V360e/SEGGER/*.S"
+    # "${CMAKE_CURRENT_LIST_DIR}/tools/SystemView_Src_V360e/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c"
+    "${CMAKE_CURRENT_LIST_DIR}/tools/SystemView_Src_V360e/Sample/ThreadX/*.c"
+    "${CMAKE_CURRENT_LIST_DIR}/tools/SystemView_Src_V360e/Sample/ThreadX/Config/Cortex-M/*.c"
 )
 
 set(HEADERS
     # Add user headers
     "${CMAKE_CURRENT_LIST_DIR}/inc"
-    "${CMAKE_CURRENT_LIST_DIR}/tools/SEGGER_RTT_V798d/RTT"
-    "${CMAKE_CURRENT_LIST_DIR}/tools/SEGGER_RTT_V798d/Config"
+    # "${CMAKE_CURRENT_LIST_DIR}/tools/SEGGER_RTT_V798d/RTT"
+    # "${CMAKE_CURRENT_LIST_DIR}/tools/SEGGER_RTT_V798d/Config"
     "${CMAKE_CURRENT_LIST_DIR}/src/module/nr_micro_shell/inc"
     "${CMAKE_CURRENT_LIST_DIR}/tools/nr_micro_shell-1.0.2/inc"
     "${CMAKE_CURRENT_LIST_DIR}/src/module/segger_rtt/inc"
+    # SystemView header directories
+    "${CMAKE_CURRENT_LIST_DIR}/tools/SystemView_Src_V360e/SEGGER"
+    "${CMAKE_CURRENT_LIST_DIR}/tools/SystemView_Src_V360e/Config"
+    "${CMAKE_CURRENT_LIST_DIR}/tools/SystemView_Src_V360e/Sample/ThreadX"
 )
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
     ${DEFINES}
@@ -91,4 +101,11 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined libraries
     threadx
+)
+
+# Add SystemView header paths to ThreadX
+target_include_directories(threadx INTERFACE
+    "${CMAKE_CURRENT_LIST_DIR}/tools/SystemView_Src_V360e/SEGGER"
+    "${CMAKE_CURRENT_LIST_DIR}/tools/SystemView_Src_V360e/Config"
+    "${CMAKE_CURRENT_LIST_DIR}/tools/SystemView_Src_V360e/Sample/ThreadX"
 )
