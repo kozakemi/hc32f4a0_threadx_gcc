@@ -27,10 +27,10 @@
         {
             "label": "create-build-dir",
             "type": "shell",
-            "command": "cmd",
+            "command": "mkdir",
             "args": [
-                "/c",
-                "if not exist build mkdir build"
+                "-p",
+                "build"
             ],
             "group": "build",
             "presentation": {
@@ -45,9 +45,8 @@
             "type": "shell",
             "command": "cmake",
             "args": [
+                "-DCMAKE_TOOLCHAIN_FILE=../drivers/toolchain/gcc-arm-none-eabi.cmake",
                 "-DCMAKE_BUILD_TYPE=Debug",
-                "-G",
-                "MinGW Makefiles",
                 ".."
             ],
             "options": {
@@ -65,7 +64,7 @@
         {
             "label": "make-build",
             "type": "shell",
-            "command": "mingw32-make",
+            "command": "make",
             "args": [
                 "-j16"
             ],
@@ -84,7 +83,7 @@
         {
             "label": "clean",
             "type": "shell",
-            "command": "mingw32-make",
+            "command": "make",
             "args": [
                 "clean"
             ],
@@ -114,6 +113,21 @@
                 "focus": false,
                 "panel": "shared"
             }
+        },
+        {
+            "label": "flash_with_pyocd",
+            "type": "shell",
+            "command": "./pyocd_flash.sh flash",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
         }
     ]
 }

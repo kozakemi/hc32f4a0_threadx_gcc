@@ -2,20 +2,55 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "HC32F4A0xI Debug",
+            "name": "HC32F4A0xI Debug (PyOCD)",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/hc32f4a0xi-template.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "pyocd",
+            "targetId": "hc32f4a0xi",
+            "interface": "swd",
+            "preLaunchTask": "build",
+            "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
+            "showDevDebugOutput": "parsed",
+            "armToolchainPath": "/usr/bin",
+            "gdbPath": "/usr/bin/arm-none-eabi-gdb",
+            "loadFiles": [
+                "${workspaceFolder}/build/hc32f4a0xi-template.elf"
+            ],
+            "swoConfig": {
+                "enabled": false,
+                "cpuFrequency": 240000000,
+                "swoFrequency": 4000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            }
+        },
+        {
+            "name": "HC32F4A0xI Debug (J-Link)",
             "cwd": "${workspaceFolder}",
             "executable": "${workspaceFolder}/build/hc32f4a0xi-template.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
             "servertype": "jlink",
-            "device": "HC32F4A0xI",
+            "device": "Cortex-M4",
             "interface": "swd",
             "preLaunchTask": "build",
             "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
             "showDevDebugOutput": "parsed",
-            "armToolchainPath": "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/14.3 rel1/bin",
-            "gdbPath": "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/14.3 rel1/bin/arm-none-eabi-gdb.exe",
+            "armToolchainPath": "/usr/bin",
+            "gdbPath": "/usr/bin/arm-none-eabi-gdb",
+            "loadFiles": [
+                "${workspaceFolder}/build/hc32f4a0xi-template.elf"
+            ],
             "swoConfig": {
                 "enabled": true,
                 "cpuFrequency": 240000000,
@@ -31,18 +66,52 @@
             }
         },
         {
-            "name": "HC32F4A0xI Attach",
+            "name": "HC32F4A0xI Attach (PyOCD)",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/hc32f4a0xi-template.elf",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "pyocd",
+            "targetId": "hc32f4a0xi",
+            "interface": "swd",
+            "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
+            "showDevDebugOutput": "parsed",
+            "armToolchainPath": "/usr/bin",
+            "gdbPath": "/usr/bin/arm-none-eabi-gdb"
+        },
+        {
+            "name": "HC32F4A0xI Attach (J-Link)",
             "cwd": "${workspaceFolder}",
             "executable": "${workspaceFolder}/build/hc32f4a0xi-template.elf",
             "request": "attach",
             "type": "cortex-debug",
             "servertype": "jlink",
-            "device": "HC32F4A0xI",
+            "device": "Cortex-M4",
             "interface": "swd",
             "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
             "showDevDebugOutput": "parsed",
-            "armToolchainPath": "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/14.3 rel1/bin",
-            "gdbPath": "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/14.3 rel1/bin/arm-none-eabi-gdb.exe"
+            "armToolchainPath": "/usr/bin",
+            "gdbPath": "/usr/bin/arm-none-eabi-gdb"
+        },
+        {
+            "name": "HC32F4A0xI Flash & Debug (PyOCD Flash, J-Link Debug)",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/hc32f4a0xi-template.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "jlink",
+            "device": "Cortex-M4",
+            "interface": "swd",
+            "preLaunchTask": "flash_with_pyocd",
+            "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
+            "showDevDebugOutput": "parsed",
+            "armToolchainPath": "/usr/bin",
+            "gdbPath": "/usr/bin/arm-none-eabi-gdb",
+            "loadFiles": [],
+            "swoConfig": {
+                "enabled": false
+            }
         }
     ]
 }

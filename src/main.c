@@ -26,12 +26,9 @@
 #include "tx_api.h"
 #if ENABLE_TRACE_API
 #include "SEGGER_SYSVIEW.h"
-#include "rtt.h"
-#include "shell.h"
-#else
-#include "rtt.h"
-#include "shell.h"
 #endif
+#include "rtt.h"
+#include "shell.h"
 
 /**
  * @addtogroup HC32F4A0_DDL_Examples
@@ -98,7 +95,7 @@ static void thread_led_entry(ULONG thread_input)
     
     for (;;) {
         LED_G_TOGGLE();
-        tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND * 2); /* Sleep for 2 seconds */
+        tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND*2); /* Sleep for 2 seconds */
     }
 }
 
@@ -154,8 +151,9 @@ int main(void)
     LED_Init();
     /* Register write protected for some required peripherals. */
     LL_PERIPH_WP(LL_PERIPH_ALL);
-    
+    #if ENABLE_TRACE_API
     SEGGER_SYSVIEW_Conf();
+    #endif
     /* Initialize ThreadX kernel */
     tx_kernel_enter();
     
