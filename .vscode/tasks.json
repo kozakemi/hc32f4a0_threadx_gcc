@@ -27,11 +27,18 @@
         {
             "label": "create-build-dir",
             "type": "shell",
-            "command": "mkdir",
-            "args": [
-                "-p",
-                "build"
-            ],
+            "windows": {
+                "command": "cmd",
+                "args": ["/c", "if not exist build mkdir build"]
+            },
+            "linux": {
+                "command": "mkdir",
+                "args": ["-p", "build"]
+            },
+            "osx": {
+                "command": "mkdir",
+                "args": ["-p", "build"]
+            },
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -44,11 +51,28 @@
             "label": "cmake-configure",
             "type": "shell",
             "command": "cmake",
-            "args": [
-                "-DCMAKE_TOOLCHAIN_FILE=../drivers/toolchain/gcc-arm-none-eabi.cmake",
-                "-DCMAKE_BUILD_TYPE=Debug",
-                ".."
-            ],
+            "windows": {
+                "args": [
+                    "-G", "Ninja",
+                    "-DCMAKE_TOOLCHAIN_FILE=../drivers/toolchain/gcc-arm-none-eabi.cmake",
+                    "-DCMAKE_BUILD_TYPE=Debug",
+                    ".."
+                ]
+            },
+            "linux": {
+                "args": [
+                    "-DCMAKE_TOOLCHAIN_FILE=../drivers/toolchain/gcc-arm-none-eabi.cmake",
+                    "-DCMAKE_BUILD_TYPE=Debug",
+                    ".."
+                ]
+            },
+            "osx": {
+                "args": [
+                    "-DCMAKE_TOOLCHAIN_FILE=../drivers/toolchain/gcc-arm-none-eabi.cmake",
+                    "-DCMAKE_BUILD_TYPE=Debug",
+                    ".."
+                ]
+            },
             "options": {
                 "cwd": "${workspaceFolder}/build"
             },
@@ -64,10 +88,17 @@
         {
             "label": "make-build",
             "type": "shell",
-            "command": "make",
-            "args": [
-                "-j16"
-            ],
+            "windows": {
+                "command": "ninja"
+            },
+            "linux": {
+                "command": "make",
+                "args": ["-j16"]
+            },
+            "osx": {
+                "command": "make",
+                "args": ["-j16"]
+            },
             "options": {
                 "cwd": "${workspaceFolder}/build"
             },
@@ -83,10 +114,18 @@
         {
             "label": "clean",
             "type": "shell",
-            "command": "make",
-            "args": [
-                "clean"
-            ],
+            "windows": {
+                "command": "ninja",
+                "args": ["clean"]
+            },
+            "linux": {
+                "command": "make",
+                "args": ["clean"]
+            },
+            "osx": {
+                "command": "make",
+                "args": ["clean"]
+            },
             "options": {
                 "cwd": "${workspaceFolder}/build"
             },
