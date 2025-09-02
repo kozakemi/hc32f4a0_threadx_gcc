@@ -14,8 +14,8 @@
             "preLaunchTask": "build",
             "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
             "showDevDebugOutput": "parsed",
-            "armToolchainPath": "/usr/bin",
-            "gdbPath": "/usr/bin/arm-none-eabi-gdb",
+            // "armToolchainPath": "/usr/bin",
+            // "gdbPath": "/usr/bin/arm-none-eabi-gdb",
             "loadFiles": [
                 "${workspaceFolder}/build/hc32f4a0xi-template.elf"
             ],
@@ -46,8 +46,8 @@
             "preLaunchTask": "build",
             "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
             "showDevDebugOutput": "parsed",
-            "armToolchainPath": "/usr/bin",
-            "gdbPath": "/usr/bin/arm-none-eabi-gdb",
+            // "armToolchainPath": "/usr/bin",
+            // "gdbPath": "/usr/bin/arm-none-eabi-gdb",
             "loadFiles": [
                 "${workspaceFolder}/build/hc32f4a0xi-template.elf"
             ],
@@ -76,8 +76,8 @@
             "interface": "swd",
             "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
             "showDevDebugOutput": "parsed",
-            "armToolchainPath": "/usr/bin",
-            "gdbPath": "/usr/bin/arm-none-eabi-gdb"
+            // "armToolchainPath": "/usr/bin",
+            // "gdbPath": "/usr/bin/arm-none-eabi-gdb"
         },
         {
             "name": "HC32F4A0xI Attach (J-Link)",
@@ -90,8 +90,8 @@
             "interface": "swd",
             "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
             "showDevDebugOutput": "parsed",
-            "armToolchainPath": "/usr/bin",
-            "gdbPath": "/usr/bin/arm-none-eabi-gdb"
+            // "armToolchainPath": "/usr/bin",
+            // "gdbPath": "/usr/bin/arm-none-eabi-gdb"
         },
         {
             "name": "HC32F4A0xI Flash & Debug (PyOCD Flash, J-Link Debug)",
@@ -106,8 +106,8 @@
             "preLaunchTask": "flash_with_pyocd",
             "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
             "showDevDebugOutput": "parsed",
-            "armToolchainPath": "/usr/bin",
-            "gdbPath": "/usr/bin/arm-none-eabi-gdb",
+            // "armToolchainPath": "/usr/bin",
+            // "gdbPath": "/usr/bin/arm-none-eabi-gdb",
             "loadFiles": [],
             "swoConfig": {
                 "enabled": false
