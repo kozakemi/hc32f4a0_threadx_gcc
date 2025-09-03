@@ -54,21 +54,18 @@
             "windows": {
                 "args": [
                     "-G", "Ninja",
-                    "-DCMAKE_TOOLCHAIN_FILE=../drivers/toolchain/gcc-arm-none-eabi.cmake",
                     "-DCMAKE_BUILD_TYPE=Debug",
                     ".."
                 ]
             },
             "linux": {
                 "args": [
-                    "-DCMAKE_TOOLCHAIN_FILE=../drivers/toolchain/gcc-arm-none-eabi.cmake",
                     "-DCMAKE_BUILD_TYPE=Debug",
                     ".."
                 ]
             },
             "osx": {
                 "args": [
-                    "-DCMAKE_TOOLCHAIN_FILE=../drivers/toolchain/gcc-arm-none-eabi.cmake",
                     "-DCMAKE_BUILD_TYPE=Debug",
                     ".."
                 ]

@@ -1,0 +1,380 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+    tags:
+      - 'v*.*.*'
+      - 'release-*'
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for the release (only for release)'
+        required: false
+        default: ''
+      release_name:
+        description: 'Release name (only for release)'
+        required: false
+        default: 'HC32F4A0 ThreadX Release'
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        default: false
+        type: boolean
+      create_release:
+        description: 'Create GitHub release'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    outputs:
+      is_release: ${{ steps.check_release.outputs.is_release }}
+      release_tag: ${{ steps.get_tag.outputs.tag }}
+      release_name: ${{ steps.get_tag.outputs.name }}
+      archive_name: ${{ steps.package.outputs.archive_name }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+    
+    - name: Check if this is a release build
+      id: check_release
+      run: |
+        if [[ "${{ github.ref_type }}" == "tag" ]] || [[ "${{ github.event.inputs.create_release }}" == "true" ]]; then
+          echo "is_release=true" >> $GITHUB_OUTPUT
+          echo "This is a release build"
+        else
+          echo "is_release=false" >> $GITHUB_OUTPUT
+          echo "This is a regular build"
+        fi
+    
+    - name: Get tag information
+      id: get_tag
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.tag_name }}" != "" ]; then
+          echo "tag=${{ github.event.inputs.tag_name }}" >> $GITHUB_OUTPUT
+          echo "name=${{ github.event.inputs.release_name }}" >> $GITHUB_OUTPUT
+          echo "prerelease=${{ github.event.inputs.prerelease }}" >> $GITHUB_OUTPUT
+        elif [[ "${{ github.ref_type }}" == "tag" ]]; then
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "tag=${TAG_NAME}" >> $GITHUB_OUTPUT
+          echo "name=HC32F4A0 ThreadX Release ${TAG_NAME}" >> $GITHUB_OUTPUT
+          echo "prerelease=false" >> $GITHUB_OUTPUT
+        else
+          # For regular builds, use commit SHA
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
+          echo "tag=build-${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "name=HC32F4A0 ThreadX Build ${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "prerelease=true" >> $GITHUB_OUTPUT
+        fi
+        
+        echo "Build tag: ${{ steps.get_tag.outputs.tag || 'build' }}"
+        echo "Build name: ${{ steps.get_tag.outputs.name || 'HC32F4A0 ThreadX Build' }}"
+    
+    - name: Install dependencies
+      run: |
+        echo "Installing build dependencies..."
+        sudo apt-get update
+        sudo apt-get install -y cmake build-essential
+        
+        # Install ARM GCC toolchain
+        echo "Installing ARM GCC toolchain..."
+        wget -q https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi.tar.xz
+        tar -xf arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi.tar.xz
+        
+        # Add to PATH for current session
+        export PATH="$PWD/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/bin:$PATH"
+        echo "$PWD/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/bin" >> $GITHUB_PATH
+        
+        # Verify installation
+        echo "Verifying toolchain installation..."
+        arm-none-eabi-gcc --version || { echo "ARM GCC installation failed"; exit 1; }
+        cmake --version || { echo "CMake installation failed"; exit 1; }
+        make --version || { echo "Make installation failed"; exit 1; }
+    
+    - name: Create build directory
+      run: |
+        echo "Creating build directory..."
+        mkdir -p build
+        echo "Build directory created successfully"
+    
+    - name: Configure with CMake
+      run: |
+        echo "Configuring project..."
+        cd build
+        
+        # Set build type based on whether this is a release
+        if [ "${{ steps.check_release.outputs.is_release }}" = "true" ]; then
+          BUILD_TYPE="Release"
+          echo "Configuring for Release build"
+        else
+          BUILD_TYPE="Debug"
+          echo "Configuring for Debug build"
+        fi
+        
+        cmake \
+           -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+           -DCMAKE_VERBOSE_MAKEFILE=ON \
+           .. || { echo "CMake configuration failed"; exit 1; }
+        echo "CMake configuration completed successfully"
+    
+    - name: Build project
+      run: |
+        echo "Building project..."
+        cd build
+        make -j$(nproc) VERBOSE=1 || { echo "Build failed"; exit 1; }
+        echo "Build completed successfully"
+        
+        # Show build statistics
+        echo "Build outputs:"
+        find . -name "*.elf" -o -name "*.bin" -o -name "*.hex" | head -20
+        
+        # Show size information if available
+        if command -v arm-none-eabi-size &> /dev/null; then
+          echo "Binary size information:"
+          find . -name "*.elf" -exec arm-none-eabi-size {} \; 2>/dev/null || true
+        fi
+    
+    - name: Verify build outputs
+      run: |
+        echo "Verifying build outputs..."
+        cd build
+        
+        # Check for essential build artifacts
+        FOUND_ARTIFACTS=false
+        
+        if find . -name "*.elf" | grep -q .; then
+          echo "✅ Found ELF files"
+          FOUND_ARTIFACTS=true
+        fi
+        
+        if find . -name "*.bin" | grep -q .; then
+          echo "✅ Found BIN files"
+          FOUND_ARTIFACTS=true
+        fi
+        
+        if find . -name "*.hex" | grep -q .; then
+          echo "✅ Found HEX files"
+          FOUND_ARTIFACTS=true
+        fi
+        
+        if [ "$FOUND_ARTIFACTS" = "false" ]; then
+          echo "❌ No build artifacts found!"
+          echo "Build directory contents:"
+          find . -type f | head -20
+          exit 1
+        fi
+        
+        echo "Build verification completed successfully"
+    
+    - name: Generate release notes (for releases only)
+      if: steps.check_release.outputs.is_release == 'true'
+      id: release_notes
+      run: |
+        echo "Generating release notes..."
+        
+        # Create release notes
+        BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+        COMMIT_SHA="${{ github.sha }}"
+        RELEASE_TAG="${{ steps.get_tag.outputs.tag }}"
+        {
+          echo "# HC32F4A0 ThreadX Release"
+          echo ""
+          echo "## Build Information"
+          echo "- **Build Date**: ${BUILD_DATE}"
+          echo "- **Commit SHA**: ${COMMIT_SHA}"
+          echo "- **Tag**: ${RELEASE_TAG}"
+          echo "- **Toolchain**: ARM GCC 12.3.rel1"
+          echo "- **Build Type**: Release"
+          echo ""
+          echo "## Project Components"
+          echo "- **Microcontroller**: HC32F4A0 Series (ARM Cortex-M4)"
+          echo "- **RTOS**: Eclipse ThreadX 6.4.2 (SEGGER version)"
+          echo "- **Build System**: CMake + Make"
+          echo "- **Debugging**: SEGGER RTT + SystemView"
+          echo "- **Shell**: nr_micro_shell"
+          echo ""
+          echo "## Component Sources"
+          echo "- Project Template: [nczyw/hc32f4a0-template](https://github.com/nczyw/hc32f4a0-template)"
+          echo "- ThreadX RTOS: [SEGGERMicro/threadx](https://github.com/SEGGERMicro/threadx)"
+          echo "- SEGGER SystemView: [SEGGERMicro/SystemView](https://github.com/SEGGERMicro/SystemView)"
+          echo "- SEGGER RTT: [SEGGERMicro/RTT](https://github.com/SEGGERMicro/RTT)"
+          echo "- nr_micro_shell: [Nrusher/nr_micro_shell](https://github.com/Nrusher/nr_micro_shell)"
+          echo ""
+          echo "## What's Included"
+          echo "- Compiled firmware binaries (ELF, BIN, HEX)"
+          echo "- Build artifacts and libraries"
+          echo "- Memory map files"
+          echo "- Build configuration and logs"
+          echo ""
+          echo "## Usage"
+          echo "1. Download the release archive"
+          echo "2. Extract the contents"
+          echo "3. Flash the firmware to your HC32F4A0 development board"
+          echo "4. Use SEGGER tools for debugging and system analysis"
+          echo ""
+          echo "---"
+          echo "*This release was automatically generated by GitHub Actions*"
+        } > release_notes.md
+        
+        echo "notes_file=release_notes.md" >> $GITHUB_OUTPUT
+    
+    - name: Package build artifacts
+      id: package
+      run: |
+        echo "Packaging build artifacts..."
+        
+        # Create artifacts directory
+        mkdir -p build_artifacts
+        
+        # Copy build outputs
+        cd build
+        
+        echo "Collecting build artifacts..."
+        
+        # Copy binary files
+        find . -name "*.elf" -exec cp {} ../build_artifacts/ \; 2>/dev/null || true
+        find . -name "*.bin" -exec cp {} ../build_artifacts/ \; 2>/dev/null || true
+        find . -name "*.hex" -exec cp {} ../build_artifacts/ \; 2>/dev/null || true
+        find . -name "*.map" -exec cp {} ../build_artifacts/ \; 2>/dev/null || true
+        find . -name "*.a" -exec cp {} ../build_artifacts/ \; 2>/dev/null || true
+        
+        cd ..
+        
+        # Copy documentation
+        cp README.md build_artifacts/ 2>/dev/null || true
+        cp README_EN.md build_artifacts/ 2>/dev/null || true
+        cp LICENSE build_artifacts/ 2>/dev/null || true
+        
+        # Copy release notes if this is a release
+        if [ "${{ steps.check_release.outputs.is_release }}" = "true" ]; then
+          cp release_notes.md build_artifacts/ 2>/dev/null || true
+        fi
+        
+        # Create detailed build info
+        BUILD_TAG="${{ steps.get_tag.outputs.tag }}"
+        BUILD_DATE_INFO=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+        COMMIT_SHA_INFO="${{ github.sha }}"
+        COMMIT_MSG=$(git log -1 --pretty=%B)
+        BRANCH_NAME="${{ github.ref_name }}"
+        WORKFLOW_NAME="${{ github.workflow }}"
+        RUNNER_OS="${{ runner.os }}"
+        IS_RELEASE="${{ steps.check_release.outputs.is_release }}"
+        BUILD_TYPE=$([ "${{ steps.check_release.outputs.is_release }}" = "true" ] && echo "Release" || echo "Debug")
+        
+        # Get tool versions
+        GCC_VERSION=$(arm-none-eabi-gcc --version | head -1)
+        CMAKE_VERSION=$(cmake --version | head -1)
+        NINJA_VERSION=$(ninja --version)
+        
+        {
+          echo "HC32F4A0 ThreadX Build Information"
+          echo "=================================="
+          echo ""
+          echo "Build Tag: ${BUILD_TAG}"
+          echo "Build Date: ${BUILD_DATE_INFO}"
+          echo "Commit SHA: ${COMMIT_SHA_INFO}"
+          echo "Commit Message: ${COMMIT_MSG}"
+          echo "Branch: ${BRANCH_NAME}"
+          echo "Workflow: ${WORKFLOW_NAME}"
+          echo "Runner OS: ${RUNNER_OS}"
+          echo "Is Release: ${IS_RELEASE}"
+          echo ""
+          echo "Toolchain Information:"
+          echo "- ARM GCC Version: ${GCC_VERSION}"
+          echo "- CMake Version: ${CMAKE_VERSION}"
+          echo "- Ninja Version: ${NINJA_VERSION}"
+          echo ""
+          echo "Build Configuration:"
+          echo "- Build Type: ${BUILD_TYPE}"
+          echo "- Toolchain File: drivers/toolchain/gcc-arm-none-eabi.cmake"
+          echo "- Generator: Unix Makefiles"
+          echo ""
+          echo "Project Components:"
+          echo "- HC32F4A0 Drivers"
+          echo "- ThreadX RTOS 6.4.2 (SEGGER)"
+          echo "- SEGGER RTT"
+          echo "- SEGGER SystemView"
+          echo "- nr_micro_shell"
+          echo ""
+        } > build_artifacts/BUILD_INFO.txt
+        
+        # List all artifacts
+        echo "Build artifacts:"
+        ls -la build_artifacts/
+        
+        # Create archive
+        TAG_NAME="${{ steps.get_tag.outputs.tag }}"
+        ARCHIVE_NAME="hc32f4a0-threadx-${TAG_NAME}"
+        
+        echo "Creating archive: ${ARCHIVE_NAME}.zip"
+        cd build_artifacts
+        zip -r ../${ARCHIVE_NAME}.zip . || { echo "Failed to create archive"; exit 1; }
+        cd ..
+        
+        echo "Packaging completed successfully"
+        echo "Archive size: $(du -h ${ARCHIVE_NAME}.zip | cut -f1)"
+        
+        # Set output for later steps
+        echo "archive_name=${ARCHIVE_NAME}.zip" >> $GITHUB_OUTPUT
+        echo "archive_path=${PWD}/${ARCHIVE_NAME}.zip" >> $GITHUB_OUTPUT
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-${{ steps.get_tag.outputs.tag }}
+        path: ${{ steps.package.outputs.archive_name }}
+        retention-days: ${{ steps.check_release.outputs.is_release == 'true' && 90 || 30 }}
+    
+    - name: Create GitHub Release (for releases only)
+      if: steps.check_release.outputs.is_release == 'true'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.get_tag.outputs.tag }}
+        name: ${{ steps.get_tag.outputs.name }}
+        body_path: release_notes.md
+        files: ${{ steps.package.outputs.archive_name }}
+        prerelease: ${{ steps.get_tag.outputs.prerelease }}
+        draft: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Build summary
+      run: |
+        echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Tag**: ${{ steps.get_tag.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Name**: ${{ steps.get_tag.outputs.name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Date**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Type**: $([ "${{ steps.check_release.outputs.is_release }}" = "true" ] && echo "Release" || echo "Debug")" >> $GITHUB_STEP_SUMMARY
+        echo "- **Archive**: ${{ steps.package.outputs.archive_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ steps.check_release.outputs.is_release }}" = "true" ]; then
+          echo "✅ Release created successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          REPO_NAME="${{ github.repository }}"
+          RELEASE_TAG="${{ steps.get_tag.outputs.tag }}"
+          echo "The release is now available at: https://github.com/${REPO_NAME}/releases/tag/${RELEASE_TAG}" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "✅ Build completed successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Build artifacts are available in the Actions tab." >> $GITHUB_STEP_SUMMARY
+        fi
