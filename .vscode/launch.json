@@ -14,15 +14,20 @@
             "preLaunchTask": "build",
             "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
             "showDevDebugOutput": "parsed",
-            // "armToolchainPath": "/usr/bin",
-            // "gdbPath": "/usr/bin/arm-none-eabi-gdb",
+            "liveWatch": {
+                "enabled": true,
+                "samplesPerSecond": 4
+            },
+            "serverArgs": [
+                "--frequency", "4m"
+            ],
             "loadFiles": [
                 "${workspaceFolder}/build/hc32f4a0xi-template.elf"
             ],
             "swoConfig": {
                 "enabled": false,
-                "cpuFrequency": 240000000,
-                "swoFrequency": 4000000,
+                // "cpuFrequency": 240000000,
+                // "swoFrequency": 4000000,
                 "source": "probe",
                 "decoders": [
                     {
@@ -41,18 +46,20 @@
             "type": "cortex-debug",
             "runToEntryPoint": "main",
             "servertype": "jlink",
-            "device": "Cortex-M4",
+            "device": "HC32F4A0xI",
             "interface": "swd",
             "preLaunchTask": "build",
             "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
             "showDevDebugOutput": "parsed",
-            // "armToolchainPath": "/usr/bin",
-            // "gdbPath": "/usr/bin/arm-none-eabi-gdb",
+            "liveWatch": {
+                "enabled": true,
+                "samplesPerSecond": 4
+            },
             "loadFiles": [
                 "${workspaceFolder}/build/hc32f4a0xi-template.elf"
             ],
             "swoConfig": {
-                "enabled": true,
+                "enabled": false,
                 "cpuFrequency": 240000000,
                 "swoFrequency": 4000000,
                 "source": "probe",
@@ -76,8 +83,10 @@
             "interface": "swd",
             "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
             "showDevDebugOutput": "parsed",
-            // "armToolchainPath": "/usr/bin",
-            // "gdbPath": "/usr/bin/arm-none-eabi-gdb"
+            "liveWatch": {
+                "enabled": true,
+                "samplesPerSecond": 4
+            }
         },
         {
             "name": "HC32F4A0xI Attach (J-Link)",
@@ -86,12 +95,14 @@
             "request": "attach",
             "type": "cortex-debug",
             "servertype": "jlink",
-            "device": "Cortex-M4",
+            "device": "HC32F4A0xI",
             "interface": "swd",
             "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
             "showDevDebugOutput": "parsed",
-            // "armToolchainPath": "/usr/bin",
-            // "gdbPath": "/usr/bin/arm-none-eabi-gdb"
+            "liveWatch": {
+                "enabled": true,
+                "samplesPerSecond": 4
+            }
         },
         {
             "name": "HC32F4A0xI Flash & Debug (PyOCD Flash, J-Link Debug)",
@@ -106,11 +117,19 @@
             "preLaunchTask": "flash_with_pyocd",
             "svdFile": "${workspaceFolder}/drivers/HC32F4A0.svd",
             "showDevDebugOutput": "parsed",
-            // "armToolchainPath": "/usr/bin",
-            // "gdbPath": "/usr/bin/arm-none-eabi-gdb",
             "loadFiles": [],
             "swoConfig": {
                 "enabled": false
+            },
+            "rttConfig": {
+                "enabled": true,
+                "address": "auto",
+                "decoders": [
+                    {
+                        "port": 0,
+                        "type": "console"
+                    }
+                ]
             }
         }
     ]

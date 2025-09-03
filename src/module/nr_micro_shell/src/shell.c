@@ -54,7 +54,7 @@ static void shell_ls_cmd(char argc, char *argv)
 	if (argc > 1) {
 		if (!strcmp("cmd", &argv[(unsigned char)argv[1]])) {
 			for (i = 0; nr_shell.static_cmd[i].fp != NULL; i++) {
-				shell_printf("%s", nr_shell.static_cmd[i].cmd);
+				shell_printf("%s : %s", nr_shell.static_cmd[i].cmd, nr_shell.static_cmd[i].description);
 				shell_printf("\r\n");
 			}
 		} else if (!strcmp("-v", &argv[(unsigned char)argv[1]])) {
